@@ -4,7 +4,9 @@ import psycopg
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.db.connection import get_db
+from app.schemas.token import TokenOut
 from app.schemas.user import UserCreate, UserLogin, UserOut
+from app.security.tokens import create_access_token
 from app.services.user_service import (
     EmailAlreadyExistsError,
     InvalidCredentialsError,
@@ -26,10 +28,10 @@ def register(data: UserCreate, connection: DbConnection) -> dict:
     return user
 
 
-@router.post("/login", response_model=UserOut)
+@router.post("/login", response_model=TokenOut)
 def login(data: UserLogin, connection: DbConnection) -> dict:
     try:
         user = authenticate_user(connection, data.email, data.password)
     except InvalidCredentialsError as error:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(error)) from error
-    return user
+    return {"access_token": create_access_token(user), "token_type": "bearer"} 
