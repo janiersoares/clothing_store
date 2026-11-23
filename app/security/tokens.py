@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from dotenv import load_dotenv
@@ -15,6 +15,6 @@ def create_access_token(user: dict) -> str:
         "sub": str(user["id"]),
         "email": user["email"],
         "role": user["role"],
-        "exp": datetime.now(timezone.UTC) + TOKEN_EXPIRES_IN,
+        "exp": datetime.now(UTC) + TOKEN_EXPIRES_IN,
     }
     return jwt.encode(payload, os.environ["JWT_SECRET"], algorithm=ALGORITHM)
