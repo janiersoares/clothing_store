@@ -15,7 +15,7 @@ def register_user(connection, email: str, password: str) -> dict:
 
     existing_user = user_repository.get_user_by_email(connection, normalized_email)
     if existing_user is not None:
-        raise EmailAlreadyExistsError("Email já cadastrado")
+        raise EmailAlreadyExistsError("Email already egistered")
 
     password_hash = hash_password(password)
     return user_repository.create_user(connection, normalized_email, password_hash, "user")
@@ -26,9 +26,9 @@ def authenticate_user(connection, email: str, password: str) -> dict:
 
     user = user_repository.get_user_by_email(connection, normalized_email)
     if user is None:
-        raise InvalidCredentialsError("Email ou senha inválidos")
+        raise InvalidCredentialsError("Invalid email or password")
 
     if not verify_password(password, user["password_hash"]):
-        raise InvalidCredentialsError("Email ou senha inválidos")
+        raise InvalidCredentialsError("Invalid email or password")
 
     return {"id": user["id"], "email": user["email"], "role": user["role"]}

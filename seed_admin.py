@@ -15,11 +15,11 @@ def main() -> None:
 
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
         if user_repository.get_user_by_email(connection, email) is not None:
-            print("Admin já existe.")
+            print("Admin already exist.")
             return
 
         user_repository.create_user(connection, email, hash_password(password), "admin")
-        print("Admin criado.")
+        print("Admin created.")
 
 
 if __name__ == "__main__":
