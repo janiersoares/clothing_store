@@ -31,7 +31,7 @@ class FakeUserRepository:
 
 @pytest.fixture(autouse=True)
 def jwt_secret(monkeypatch):
-    monkeypatch.setenv("JWT_SECRET", "segredo-de-teste")
+    monkeypatch.setenv("JWT_SECRET", "segredo-de-teste-com-pelo-menos-32-bytes")
 
 
 @pytest.fixture
@@ -86,7 +86,7 @@ def test_authenticate_rejects_unknown_email(repo):
 def test_token_contains_role():
     token = create_access_token({"id": 1, "email": "admin@mail.com", "role": "admin"})
 
-    payload = jwt.decode(token, "segredo-de-teste", algorithms=["HS256"])
+    payload = jwt.decode(token, "segredo-de-teste-com-pelo-menos-32-bytes", algorithms=["HS256"])
 
     assert payload["role"] == "admin"
     assert payload["sub"] == "1"
@@ -127,3 +127,12 @@ def test_login_route_returns_401_for_wrong_password(client):
     response = client.post("/auth/login", json={"email": "ana@mail.com", "password": "errada"})
 
     assert response.status_code == 401
+
+
+def test_register_route_rejects_password_longer_than_72_bytes(client):
+    response = client.post(
+        "/auth/register",
+        json={"email": "ana@mail.com", "password": "a" * 73},
+    )
+
+    assert response.status_code == 422
